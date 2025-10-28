@@ -4,13 +4,12 @@ import torch
 from config import batch_size
 
 class TensorDataset:
-    """自定义实现的TensorDataset"""
     def __init__(self, *tensors):
         if not tensors:
-            raise ValueError("至少需要一个张量")
+            raise ValueError
         
         self.tensors = tensors
-        self.length = len(tensors[0])  # 假设所有张量的第一个维度都是样本数
+        self.length = len(tensors[0])  
         
         # 检查所有张量的第一个维度是否相同
         for i, tensor in enumerate(tensors):
@@ -25,15 +24,13 @@ class TensorDataset:
             # 切片索引
             return tuple(tensor[index] for tensor in self.tensors)
         else:
-            # 其他索引类型（如列表、数组等）
+            # 其他索引类型
             return tuple(tensor[index] for tensor in self.tensors)
     
     def __len__(self):
-        """返回数据集的长度"""
         return self.length
 
 class DataLoader:
-    """自定义实现的DataLoader"""
     def __init__(self, dataset, batch_size=1, shuffle=False, num_workers=0):
         self.dataset = dataset
         self.batch_size = batch_size
@@ -44,7 +41,6 @@ class DataLoader:
         self.indices = list(range(len(dataset)))
     
     def __iter__(self):
-        """返回迭代器"""
         if self.shuffle:
             # 如果需要打乱，重新生成随机索引
             indices = np.random.permutation(self.indices).tolist()
@@ -67,19 +63,17 @@ class DataLoader:
             
             # 如果数据项是元组（如特征和标签），分别组织
             if isinstance(batch_data[0], tuple):
-                # 多个张量的情况
+                # 多个张量
                 result = []
                 for j in range(len(batch_data[0])):
                     tensor_data = [item[j] for item in batch_data]
-                    # 转换为numpy数组
                     result.append(np.stack(tensor_data, axis=0))
                 yield tuple(result)
             else:
-                # 单个张量的情况
+                # 单个张量
                 yield np.stack(batch_data, axis=0)
     
     def __len__(self):
-        """返回批次数量"""
         return (len(self.dataset) + self.batch_size - 1) // self.batch_size
 def load_data(csv_path="iris.csv", test_size=0.2):
 
